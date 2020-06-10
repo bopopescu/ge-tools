@@ -1,15 +1,20 @@
+you need kubectl
+  eg: sudo snap install kubectl --classic
+
 /etc/rancher/k3s/k3s.yaml
 
-scp rancher@172.17.12.9:/etc/rancher/k3s/k3s.yaml /mnt/c/NextCloud/G-IT/code/ge-tools/k3s.yaml
+master-node-ip : 10.100.27.2
+
+scp rancher@10.100.27.2:/etc/rancher/k3s/k3s.yaml ~/k3s.yaml
+
+edit k3s.yaml:
+      server: https://10.100.27.2:6443
 
 
-edit:     server: https://172.22.31.9:6443
+export KUBECONFIG=~/k3s.yaml
 
 
-export KUBECONFIG=/mnt/c/NextCloud/G-IT/code/k3s/k3s_9688.yaml
-export KUBECONFIG=/mnt/c/NextCloud/G-IT/code/k3s/k3s_9756.yaml
-export KUBECONFIG=/mnt/c/NextCloud/G-IT/code/k3s/k3s_9765.yaml
-
+# dashboard if you like
 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
 
@@ -17,5 +22,5 @@ kubectl apply -f dashboard.yaml
 
 kubectl -n kubernetes-dashboard describe secret admin-user-token | grep ^token
 
-
+kubectl proxy
 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login

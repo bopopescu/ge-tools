@@ -1,21 +1,22 @@
-k get nodes
+kubectl get nodes
 
 cho
 
-k describe node k3os-5318
+kubectl describe node k3os-1191 | grep "InternalIP"
+
 --> public-ip: 172.17.17.9
 
 ssh rancher@172.17.17.9
-  sudo mkdir /z
+sudo mkdir /z
 
 edit yaml for nodeAffinity
 
-k create ns zabbix
-k apply -n zabbix -f zabbix-pv-git.yaml
+kubectl create ns zabbix
+kubectl apply -n zabbix -f zabbix-pv-git.yaml
 
 
-k get pods -n zabbix
-k exec -it -n zabbix zabbix-web-c4zq5m /bin/bash
+kubectl get pods -n zabbix
+kubectl exec -it -n zabbix zabbix-web-bzbzv /bin/bash
 chown -Rf www:www /var/lib/nginx
 
 http://172.17.17.9:31888/
