@@ -117,13 +117,13 @@ def create_network():
     r = zos.reservation_create()
 
     # change this
-    expiration = int(j.data.time.HRDateToEpoch('2021/01/31'))
+    expiration = int(j.data.time.HRDateToEpoch('2021/06/30'))
 
     overlay_network_ip_range = overlay_network_pre+"0.0/16"
     iprange = "automatic"
 
     # Farm ID of the farms involved
-    GE_Salzburg1 =    12775
+    GEA_Salzburg1 =    12775
     GE_CapeTown1 =   118280
     GE_Vienna2 =      82872
     GE_Vienna1 =      84041
@@ -131,11 +131,11 @@ def create_network():
     GE_Toronto1 =    118300
     GE_Frankfurt1 =  118313
     GE_StGallen1 =   118315
-    GE_Daniel =      173609
-    GE_Jakob =       173611
-    GE_Vienna1 =     173632
+    GEA_Daniel =      173609
+    GEA_Jakob =       173611
+    GEA_Vienna1 =     173632
 
-    nodes_GE_Salzburg1     = zos.nodes_finder.nodes_search(farm_id=GE_Salzburg1)
+    nodes_GEA_Salzburg1     = zos.nodes_finder.nodes_search(farm_id=GEA_Salzburg1)
     nodes_GE_CapeTown1     = zos.nodes_finder.nodes_search(farm_id=GE_CapeTown1)
     nodes_GE_Vienna2 	   = zos.nodes_finder.nodes_search(farm_id=GE_Vienna2)
     nodes_GE_Vienna1       = zos.nodes_finder.nodes_search(farm_id=GE_Vienna1)
@@ -143,9 +143,9 @@ def create_network():
     nodes_GE_Toronto1      = zos.nodes_finder.nodes_search(farm_id=GE_Toronto1)
     nodes_GE_Frankfurt1    = zos.nodes_finder.nodes_search(farm_id=GE_Frankfurt1)
     nodes_GE_StGallen1     = zos.nodes_finder.nodes_search(farm_id=GE_StGallen1)
-    nodes_GE_Daniel        = zos.nodes_finder.nodes_search(farm_id=GE_Daniel)
-    nodes_GE_Jakob         = zos.nodes_finder.nodes_search(farm_id=GE_Jakob)
-    nodes_GE_Vienna1       = zos.nodes_finder.nodes_search(farm_id=GE_Vienna1)
+    nodes_GEA_Daniel        = zos.nodes_finder.nodes_search(farm_id=GEA_Daniel)
+    nodes_GEA_Jakob         = zos.nodes_finder.nodes_search(farm_id=GEA_Jakob)
+    nodes_GEA_Vienna1       = zos.nodes_finder.nodes_search(farm_id=GEA_Vienna1)
 
     # Fixed IPv4 gateway node
     ipv4_gateway='CBDY1Fu4CuxGpdU3zLL9QT5DGaRkxjpuJmzV6V5CBWg4'
@@ -157,7 +157,8 @@ def create_network():
 
 
 #    nodes_all = nodes_GE_StGallen1  + nodes_GE_Frankfurt1 + nodes_GE_Toronto1 +nodes_GE_Rochester1
-    nodes_all = nodes_GE_Salzburg1  + nodes_GE_Vienna2
+#   nodes_all = nodes_GE_Salzburg1  + nodes_GE_Vienna2
+    nodes_all = nodes_GE_Vienna1 + nodes_GE_Vienna2
     nodes_all.append(gwnode)
 
     # We only need one WG interface, once set this is set to True
@@ -167,7 +168,7 @@ def create_network():
     #nipl = dict()  # node ip list :-)
     ii = 0
     for i, node in enumerate(nodes_all):
-        if (zos.nodes_finder.filter_is_up(node) and zos.nodes_finder.filter_is_free_to_use(node) and check_public_ipv6(node)):
+        if (zos.nodes_finder.filter_is_up(node) and zos.nodes_finder.filter_is_free_to_use(node) and check_public_ipv6(node)):   # check for if you can pay with this token
             ii += 1
             iprange = overlay_network_pre+f"{i+10}.0/24"
             ippre = overlay_network_pre+f"{i+10}."
@@ -193,9 +194,8 @@ def create_network():
     print (80*"-")
     print(wg_config)
     print (80*"-")
+    #todo: automatic save wg.conf to disk!
     #sys.exit(0)
-
-
 
 
     # register the reservation
@@ -208,9 +208,10 @@ def create_network():
     print(result)
 
     time.sleep(5)
-    check_network_res(registered_reservation)
+    check_network_res(registered_reservation.reservation_id)
     #todo: check if all nodes are in the result!
-    sys.exit(0)
+    #todo: what todo if it fails ??
+
 
 
 def create_minio(nodeset):
@@ -221,7 +222,7 @@ def create_minio(nodeset):
 
     # customize this !!!
     zdb_size = 10
-    expiration = int(j.data.time.HRDateToEpoch('2020/06/10'))
+    expiration = int(j.data.time.HRDateToEpoch('2020/06/20'))
     #expiration = int(j.data.time.HRDateToEpoch('2021/01/31'))
 
 
@@ -433,7 +434,7 @@ def create_container(interact):
 
     HUB_URL = "https://hub.grid.tf/tf-bootable"
     wallet = j.clients.stellar.get(wallet_name)
-    expiration = int(j.data.time.HRDateToEpoch('2020/06/10'))
+    expiration = int(j.data.time.HRDateToEpoch('2020/06/12'))
 
     container_flist = f"{HUB_URL}/ubuntu:18.04-r1.flist"
 
@@ -441,8 +442,9 @@ def create_container(interact):
     #container_flist = "https://hub.grid.tf/teibler02.3bot/hteibler-zabbix-1.0.8.flist"
     storage_url = "zdb://hub.grid.tf:9900"
 
+    # node on which the container should run
+    node_id="CpssVPA4oh455qDxakYhiazgG6t2FT6gAGvmPJMKJL2d"
 
-    node_id="89mNigU1u94nATtvho3Ut7n9HT7zx6nuVqeXUFnmQwrA"
     ip_address = get_free_ip(myres,node_id,overlay_network_name)
 
     node = j.clients.explorer.explorer.nodes.get(node_id)
@@ -512,7 +514,7 @@ def create_container(interact):
 
 def create_k8s():
     wallet = j.clients.stellar.get(wallet_name)
-    expiration = int(j.data.time.HRDateToEpoch('2020/12/30'))
+    expiration = int(j.data.time.HRDateToEpoch('2021/06/30'))
 
     zos = j.sal.zosv2
 
@@ -522,10 +524,17 @@ def create_k8s():
 
     res_k8s = zos.reservation_create()
 
+    # ---
     node_master = '8TZdSPEUC8gACaNacQDFRiskiUeDxjmLm3mTUDoRaStg'
     node_workers=['37ZtYckRA47d8FW7GkUxtbCLLMFKa68KZp5UAGZmgfFW',
         'FS2bpZSpnHgs35hz3NYVLYfFmLjKffsrrRYjW8ntkoNh',
         'GzXndGfaG82B2J9nu85GGZ3XjufZDENvmVub1oaAc7RZ']
+
+    #vie 2
+    node_master = '6mVGwQ41R9f7VJpNoJ6QLs4V15dsfMNXfEmQYhVEwCz6'
+    node_workers=['GiSqnwbuvQagEiqMoexkq582asC8MattsjbFFuMdsaCz',
+        '9LmpYPBhnrL9VrboNmycJoGfGDjuaMNGsGQKeqrUMSii',
+        '3FPB4fPoxw8WMHsqdLHamfXAdUrcRwdZY7hxsFQt3odL']
 
     ip_master = get_free_ip(myres,node_master,overlay_network_name)
     ip_worker = []
@@ -561,6 +570,8 @@ def create_k8s():
     payment_k8s=zos.billing.payout_farmers(wallet, registered_reservation)
     print ("pay:",payment_k8s)
 
+    #todo: check and wait for ready
+
 def tcpproxy():
     zos.gateway.tcp_proxy(reservation=r,
                             node_id='CBDY1Fu4CuxGpdU3zLL9QT5DGaRkxjpuJmzV6V5CBWg4',
@@ -578,14 +589,18 @@ def tcpproxy():
 j.clients.explorer.default_addr_set('explorer.grid.tf')
 
 # customize this
-PUBKEY = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCCoY7+AchsnObo1Qct15MZWZA7KgqCaxi3DSZM34zak0dttNn7UasQtHa86dcyLJ1LWe94CaRLhM/Yi9VwvNC5QlpMizygEyvaD4pKPsQjLFm0Gi8F1SxENtxL3rOOzqqDDrnASrEKYR8ULSBSC/VjdTE5CVOTGdxMJGDsPsT2VngWikMes9n/o9kfnjN5t2SkukP6SxsxbB34RQLkdTXDvbH3JnlsjbCvtmyIq4l/SrjikjMRUyOorzPBenxzl1Jm+Fj4FYpjq277o07fqF4iOBRZ7brn1fjPxB+e8vkZ4JYC5Dodp55QxF7881VSae+G/wd9eKk8WJDOztF59jJ hteibler@miix720"
+HERBERT = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCCoY7+AchsnObo1Qct15MZWZA7KgqCaxi3DSZM34zak0dttNn7UasQtHa86dcyLJ1LWe94CaRLhM/Yi9VwvNC5QlpMizygEyvaD4pKPsQjLFm0Gi8F1SxENtxL3rOOzqqDDrnASrEKYR8ULSBSC/VjdTE5CVOTGdxMJGDsPsT2VngWikMes9n/o9kfnjN5t2SkukP6SxsxbB34RQLkdTXDvbH3JnlsjbCvtmyIq4l/SrjikjMRUyOorzPBenxzl1Jm+Fj4FYpjq277o07fqF4iOBRZ7brn1fjPxB+e8vkZ4JYC5Dodp55QxF7881VSae+G/wd9eKk8WJDOztF59jJ hteibler@miix720"
+JOE = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCugLxh3mQb/TNgnx/qdSHd8yeZnP/IPLWsuSHJ6mhYnasimHzI9BBlxmMwbdODFZQYV4A4PEEy7bAGLbK6GDzZdEM4qkC5yn/SfmrHg0DGAJroGEbZMC2aOv/fAdZzHLz0alGK7dl6OCPozs78Xa01rxEAEs4y0zI8HEIXtiI+ZSNNSn7FK0+LHfSAf+Nl9rlT3Qn2NiQ+loXWsHrnt524yP+KSt4/lllLH7a8kbdDQMilJdsYuBlof9FgZ7VDx4/8pKm7vEcP0vWGFsXb0e7FL8TAeMTorh7GuWdSjVeV59C2+ayHe3/94wjGLa9+ZKsXn8HcUjZNFwwoiE+9JFhjKxGWBzIrxSRL29TathO3Ds1YdG8cDaWSTvlBnhGhcSOwrpqzc4W/bm2OGdhOvWjKL7gZZ7zz1mrwrPafd0VaLtgxPqPUct+a6AmJv0ejKbp2Az7CJ5mMeAhBafxfWU4Y0/6Qq342LMNNLjtqciAQHCQrRikmDDF373m2myi/ph0= joefoxton@Joes-iMac.local"
+GUIDO = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAHYz5VlBX8wsp77sNwKOXTU4TaemZWdq290DTStVYflm2t3QrTeYrZEkS+JQCLFpQ0DpkcGqSr4ZVZ3h3igPg4FpQF9lo50kFLnmCZepWRQZDMpYnb8FvyNlz7YS9MiLKuqtPmb5m8KFOE2j35qdkNUxAbDyABnUjaisi3MZptkcA1iqA== gneum@R5-Mini"
+
+PUBKEY = HERBERT
+
 j.core.myenv.secret_set(secret="keines")
 wallet_name='ht20'
 currency='FreeTFT'
 
 me=j.me
-tid = me.id
-
+tid = me.tid   # ?  id vs. tid !!!!
 
 #nr=j.clients.explorer.explorer.reservations.get(9847)
 #check_network_res(9847)
@@ -594,10 +609,10 @@ tid = me.id
 #overlay_network_name="Net-20"
 #overlay_network_pre="172.20." # only needed for network creation
 
-# overlay_network_name="Net-19"
+overlay_network_name="ht-test_6"
 
-overlay_network_name="ht-test_5"
-overlay_network_pre="10.216."
+overlay_network_name="zabbix1"
+overlay_network_pre="10.100."  # / 16
 
 
 # you only need to create the network once
@@ -612,7 +627,8 @@ print ("--> end   get res:",time.strftime("%Y.%m.%d-%H:%M:%S"))
 #create_minio("vie2")
 #create_minio("vie2sbg1")
 #create_minio("sbg1_no_apllo")
-#create_minio("sbg1")
-create_container("no")
+overlay_network_name="ht-test_6"
+create_minio("sbg1")
+#create_container("no")
 #create_k8s()
 print ("--> finished:",time.strftime("%Y.%m.%d-%H:%M:%S"))
