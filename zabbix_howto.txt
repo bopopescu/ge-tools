@@ -1,0 +1,30 @@
+k get nodes
+
+cho
+
+k describe node k3os-5318
+--> public-ip: 172.17.17.9
+
+ssh rancher@172.17.17.9
+  sudo mkdir /z
+
+edit yaml for nodeAffinity
+
+k create ns zabbix
+k apply -n zabbix -f zabbix-pv-git.yaml
+
+
+k get pods -n zabbix
+k exec -it -n zabbix zabbix-web-c4zq5m /bin/bash
+chown -Rf www:www /var/lib/nginx
+
+http://172.17.17.9:31888/
+
+admin / zabbix
+
+
+
+docker:
+docker run -it --name zabbix8 -p 3380:80 -p3322:22 -p 33443 -e pub_key="$(cat ~/.ssh/id_rsa.pub)" -d hteibler/zabbix:1.0.8
+
+docker run -it --name wgrouter1 -p4422:22 -e pub_key="$(cat ~/.ssh/id_rsa.pub)" -d hteibler/wgrouter:1.0.0
