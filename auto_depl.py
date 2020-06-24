@@ -51,12 +51,12 @@ def add_network_access(): #(reservations,networkname):
     n0 = reservation.data_reservation.networks[0]
 
     #add wg clients
-    wg_config1 = zos.network.add_access(n0, gwnodeid , '10.11.201.0/24', ipv4=True)
-    wg_config2 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
-    wg_config3 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
-    wg_config4 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
-    wg_config5 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
-    wg_config6 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
+    wg_config1 = zos.network.add_access(n0, gwnodeid , '10.11.211.0/24', ipv4=True)
+    wg_config2 = zos.network.add_access(n0, gwnodeid , '10.11.212.0/24', ipv4=True)
+    wg_config3 = zos.network.add_access(n0, gwnodeid , '10.11.213.0/24', ipv4=True)
+    wg_config4 = zos.network.add_access(n0, gwnodeid , '10.11.214.0/24', ipv4=True)
+    wg_config5 = zos.network.add_access(n0, gwnodeid , '10.11.215.0/24', ipv4=True)
+    wg_config6 = zos.network.add_access(n0, gwnodeid , '10.11.216.0/24', ipv4=True)
 
     # copy network related part inside new reservation
     newreservation.data_reservation.networks.append(n0._ddict)
@@ -296,7 +296,7 @@ def create_minio(nodeset):
     #todo: randomize it!!
 
     # customize this !!!
-    zdb_size = 1000 # 1 tb each
+    zdb_size = 1000 # in GB !
     expiration = int(j.data.time.HRDateToEpoch('2020/06/25'))
     #expiration = int(j.data.time.HRDateToEpoch('2021/01/31'))
 
@@ -553,7 +553,7 @@ def create_container(interact):
 
     cpu = 2
     memory = 4092
-    disk_size = 200*1024
+    disk_size = 200*1024  # in MB !
 
     var_dict = {"pub_key": PUBKEY}
     entry_point = "/bin/bash /start.sh"

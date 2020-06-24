@@ -1,5 +1,5 @@
-kubectl get nodes
 
+kubectl get nodes
 
 kubectl describe node k3os-9191 | grep "InternalIP"
 
@@ -14,6 +14,10 @@ edit yaml for nodeAffinity
 
 kubectl apply -f zabbix5.yaml
 
+Admin / zabbix
+
+
+
 - rest for old Versin 3.x
 kubectl create ns zabbix
 kubectl apply -n zabbix -f zabbix-pv-git.yaml
@@ -25,12 +29,10 @@ kubectl exec -it -n zabbix zabbix-web-p6jjd /bin/bash
 chown -Rf www:www /var/lib/nginx
 
 http://172.17.17.9:31888/
+Admin / zabbix
 
-admin / zabbix
 
 
 
 docker:
 docker run -it --name zabbix8 -p 3380:80 -p3322:22 -p 33443 -e pub_key="$(cat ~/.ssh/id_rsa.pub)" -d hteibler/zabbix:1.0.8
-
-docker run -it --name wgrouter1 -p4422:22 -e pub_key="$(cat ~/.ssh/id_rsa.pub)" -d hteibler/wgrouter:1.0.0

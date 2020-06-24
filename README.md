@@ -3,13 +3,15 @@
 ## Files
 
 ### run in SDK shell
-c.sh  
+c.sh  ( just a tool to copy between local machine and container)
 auto_depl.py  
 
 ### run with python3 everywhere
 examples.py  
-tf.py  
+tf.py  ( library )
 
 ### to create Zabbix in k8s / k3s
 zabbix_howto.txt  
-zabbix-pv-git.yaml
+zabbix5.yaml
+
+### others

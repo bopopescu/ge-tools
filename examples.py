@@ -378,9 +378,9 @@ users = tf.get_from_tf(users_url)
 #example1()
 #example2(True)
 
-example3()
+#example3()
 #example8("k",users)
-sys.exit()
+#sys.exit()
 
 #example4(9156)
 #example5("MFxftFaF78sVlBwgZi+NfYKZtSi9dnurzwIOhKoyy2k=",res)
@@ -391,8 +391,8 @@ sys.exit()
 
 
 
-#tf.send_telegram(telegram_3sdk_group,example2(False))
-#sys.exit()
+tf.send_telegram(telegram_3sdk_group,example2(False))
+sys.exit()
 # example8([98,130,1,7],users)
 #example9("GBKVJL52QU3OIKVPNCPP62B4MLJ5HRAOJ6X3S6KUJ6PVBIDVRKELZQ2B")
 
