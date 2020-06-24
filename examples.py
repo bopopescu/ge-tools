@@ -144,11 +144,11 @@ def example3():
                 rn += 1
                 res_text += "network|"
                 n0=r["data_reservation"]["networks"][0]
-                res_text += n0["name"]+" "
+                res_text += n0["name"]+" |\t "+n0["iprange"]
             if (r["data_reservation"]["kubernetes"] != [] ):
                 rk += 1
                 k0 = r["data_reservation"]["kubernetes"][0]
-                res_text += "kubernetes<"+k0["network_id"]+"> "
+                res_text += "kubernetes<"+k0["network_id"]+" |\t "+k0["ipaddress"]+"> "
             if (r["data_reservation"]["volumes"] != [] ):
                 rv += 1
                 res_text += "volumes "
@@ -157,7 +157,7 @@ def example3():
                 c0 = r["data_reservation"]["containers"][0]
                 c1 = c0["flist"].rsplit('/', 1)[-1]
 #                res_text += "containers:"+c0.rsplit('. ', 1)[-1] +" "
-                res_text += "containers|"+c1.rpartition('.')[0] +"<"
+                res_text += "containers|\t"+c1.rpartition('.')[0] +"<"
                 res_text += c0["network_connection"][0]["network_id"]+"|"
                 res_text += c0["network_connection"][0]["ipaddress"]+">"
             if not (r["data_reservation"]["zdbs"] in (None, []) ):
@@ -189,7 +189,7 @@ def example3():
 #            print (c,r["id"],r["next_action"],r["customer_tid"],pts_res,res_text)
 #            if ts_now < ts_res:
 
-            print (c,r["id"],r["next_action"],r["customer_tid"],pts_pro,pts_res,res_text)
+            print (r["id"],r["next_action"],r["customer_tid"],pts_pro,pts_res,res_text)
 
 #        print("rn  rk  rv  rc  rz  rp  rr  rs  rd  rg")
 #        print(rn , rk , rv , rc , rz , rp , rr , rs , rd , rg)

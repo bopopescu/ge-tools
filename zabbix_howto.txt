@@ -1,22 +1,27 @@
 kubectl get nodes
 
-cho
 
-kubectl describe node k3os-1191 | grep "InternalIP"
+kubectl describe node k3os-9191 | grep "InternalIP"
 
 --> public-ip: 172.17.17.9
 
 ssh rancher@172.17.17.9
-sudo mkdir /z
+sudo mkdir /data
+sudo chmod 777 /data
+
 
 edit yaml for nodeAffinity
 
+kubectl apply -f zabbix5.yaml
+
+- rest for old Versin 3.x
 kubectl create ns zabbix
 kubectl apply -n zabbix -f zabbix-pv-git.yaml
 
 
+
 kubectl get pods -n zabbix
-kubectl exec -it -n zabbix zabbix-web-bzbzv /bin/bash
+kubectl exec -it -n zabbix zabbix-web-p6jjd /bin/bash
 chown -Rf www:www /var/lib/nginx
 
 http://172.17.17.9:31888/

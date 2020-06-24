@@ -35,6 +35,45 @@ def check_public_ipv6(node):
 
     return ok
 
+def add_network_access(): #(reservations,networkname):
+
+
+# 9985 3 130 2020-06-17 2021-06-30 network|test4-fra |	 10.74.0.0/16
+# 9998 3 130 2020-06-19 2021-06-30 network|net-sbg1 |	 10.11.0.0/16
+    zos = j.sal.zosv2
+
+    gwnodeid ='CBDY1Fu4CuxGpdU3zLL9QT5DGaRkxjpuJmzV6V5CBWg4'
+
+    # retrieve existing network definition
+    reservation=j.clients.explorer.explorer.reservations.get(9998)
+    newreservation=j.clients.explorer.explorer.reservations.new()
+    # retrieve existing network reservation
+    n0 = reservation.data_reservation.networks[0]
+
+    #add wg clients
+    wg_config1 = zos.network.add_access(n0, gwnodeid , '10.11.201.0/24', ipv4=True)
+    wg_config2 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
+    wg_config3 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
+    wg_config4 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
+    wg_config5 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
+    wg_config6 = zos.network.add_access(n0, gwnodeid , '10.11.202.0/24', ipv4=True)
+
+    # copy network related part inside new reservation
+    newreservation.data_reservation.networks.append(n0._ddict)
+
+    print(wg_config1)
+    print(wg_config2)
+    print(wg_config3)
+    print(wg_config4)
+    print(wg_config5)
+    print(wg_config6)
+
+
+    # reapply the reservation
+    rid = zos.reservation_register(newreservation, reservation.data_reservation.expiration_reservation, identity=me)
+    result = zos.reservation_result(rid.reservation_id)
+    print("provisioning result")
+    print(result)
 
 
 def get_free_ip(reservations,node,networkname):
@@ -84,13 +123,14 @@ def get_free_ip(reservations,node,networkname):
     # todo: check if free_ip is a valid IP
     return free_ip
 
-def check_network_res(res_id):
+def check_network_res(resid):
     '''
     check if networkres is Ok
     via results_k8s
     '''
 
-    results = j.sal.zosv2.reservation_result(res_id)
+    res=j.clients.explorer.explorer.reservations.get(resid)
+    results = j.sal.zosv2.reservation_result(res.id)
     print ("len:result:",len(results))
     res_nodes = []
     for r in results:
@@ -158,8 +198,24 @@ def create_network():
 
 #    nodes_all = nodes_GE_StGallen1  + nodes_GE_Frankfurt1 + nodes_GE_Toronto1 +nodes_GE_Rochester1
 #   nodes_all = nodes_GE_Salzburg1  + nodes_GE_Vienna2
-    nodes_all = nodes_GE_Vienna1 + nodes_GE_Vienna2
+
+#   nodes_all = nodes_GE_Vienna1
+    nodes_all = nodes_GEA_Salzburg1 #nodes_GE_Frankfurt1
+
     nodes_all.append(gwnode)
+
+
+    """
+    nodes_all = []  # fra1
+    nodes_all.append(j.clients.explorer.explorer.nodes.get('TCoGYjsRDBMUro1QE9fUtxRpazLy91SfMzUBAHgMdrE'))
+    nodes_all.append(j.clients.explorer.explorer.nodes.get('GLRYdfgQA5kSc9v1QQ6cZ8PUSXBquj4Dj5oM89XaPJGv'))
+    nodes_all.append(j.clients.explorer.explorer.nodes.get('C9BuLzGdpEmGuG1eiSVvPTEQ2GnpTn4NMR7NXR1aQx7Z'))
+    nodes_all.append(j.clients.explorer.explorer.nodes.get('25hz9SDrYJmZgApi45Eq8jCKTNpLeKjtoidW6PnZvbCq'))
+    nodes_all.append(gwnode)
+    """
+
+#    print (nodes_all)
+#   sys.exit(0)
 
     # We only need one WG interface, once set this is set to True
     #wg_already_set = False
@@ -180,23 +236,42 @@ def create_network():
                 zos.nodes_finder.filter_is_up(node),zos.nodes_finder.filter_is_free_to_use(node),check_public_ipv6(node))
 
 #    if (zos.nodes_finder.filter_public_ip4(node) and wg_already_set == False):
-    wg_config = zos.network.add_access(network, gwnode.node_id, overlay_network_pre+'254.0/24', ipv4=True)
     print("Node number: ", i, gwnode.node_id, ":", iprange,"  WG")
     #wg_already_set = True
+
+    """
+    wg_config1 = zos.network.add_access(network, gwnode.node_id, overlay_network_pre+'254.0/24', ipv4=True)
+    wg_config2 = zos.network.add_access(network, gwnode.node_id, overlay_network_pre+'253.0/24', ipv4=True)
+    wg_config3 = zos.network.add_access(network, gwnode.node_id, overlay_network_pre+'252.0/24', ipv4=True)
+    wg_config4 = zos.network.add_access(network, gwnode.node_id, overlay_network_pre+'251.0/24', ipv4=True)
+
+    """
+
+    wg_config = zos.network.add_access(network, gwnode.node_id, overlay_network_pre+'254.0/24', ipv4=True)
+    wg_config1 = zos.network.add_access(network, gwnode.node_id, overlay_network_pre+'253.0/24', ipv4=True)
 
 
     #print (nipl)
     print (80*"-")
-    print ("usable nodes:",ii)
+#    print ("usable nodes:",ii)
 
     # print the wireguard config - store in a secure place.
     print("WG Interface configured:")
     print (80*"-")
     print(wg_config)
     print (80*"-")
+    print(wg_config1)
+    print (80*"-")
+    """
+    print(wg_config2)
+    print (80*"-")
+    print(wg_config3)
+    print (80*"-")
+    print(wg_config4)
+    print (80*"-")
     #todo: automatic save wg.conf to disk!
     #sys.exit(0)
-
+    """
 
     # register the reservation
     registered_reservation = zos.reservation_register(r, expiration, currencies=currency)
@@ -221,8 +296,8 @@ def create_minio(nodeset):
     #todo: randomize it!!
 
     # customize this !!!
-    zdb_size = 10
-    expiration = int(j.data.time.HRDateToEpoch('2020/06/20'))
+    zdb_size = 1000 # 1 tb each
+    expiration = int(j.data.time.HRDateToEpoch('2020/06/25'))
     #expiration = int(j.data.time.HRDateToEpoch('2021/01/31'))
 
 
@@ -276,7 +351,7 @@ def create_minio(nodeset):
         8zdqjFD7GLsSSfsTgFYcGusw91gQ3tdx7jbUhJep2a5X
         6chi1iSczxfF4U2iyCcJwkwWnwzcDgQHzCRExK9r4V1j
         """
-        minio_master_node_id = '6chi1iSczxfF4U2iyCcJwkwWnwzcDgQHzCRExK9r4V1j'
+        minio_master_node_id = 'BSusuRh6qFzheQFwNPe1S5FA5pdSZVJwVLhpNS6GN4XD'
         # sbg1 apollo ########################################
         zdb_node_id=['HugtVL51BFNLbZbbxnWu2GEe8hV97YVPac19zy5wwNpT',
             '9KAbX21NGbZYupBJ6EeeWx3ZTKDx7ADevr8qtmEa5WkC',
@@ -284,6 +359,10 @@ def create_minio(nodeset):
             '3h4TKp11bNWjb2UemgrVwayuPnYcs2M1bccXvi3jPR2Y',
             '5Pb5NMBQWLTWhXK2cCM8nS6JZrnP2HaTP452TfMMYT9p']
             #'FLeByELHK22evRYqJokHsCMCF9wQpLtuyehUp1LgR5eM']
+
+        # do it 3 times
+        zdb_node_id=zdb_node_id+zdb_node_id+zdb_node_id
+
 
     if nodeset == "stg1":
         # St.Gallen CPU nodes
@@ -328,6 +407,16 @@ def create_minio(nodeset):
             'CLbt5He2JibpLb4VQtBEeYz3r7j1YYopeNSGAtjZKPPQ',     #vie2
             'CayXiccrTd1uudPtBi1y6YusEXFFTENX3TShPJ85FnLJ',     #vie2
             'DKxHM2qdSMw1c4s5bUdURWkmnvR9LiHP4cwTmCNZtpDK']     #vie2
+
+    if nodeset == "vie1":
+        # vienna 1 ########################################
+        minio_master_node_id = 'DAENgzAf2WSQzYtBwDxQ8ZwYdhkzLhekHx5B2PYrMMn9'
+        zdb_node_id=['BXAhrkiHwjcwytysewndjStdt4sf3vnz52jBegpzaAgT',
+            '8TZdSPEUC8gACaNacQDFRiskiUeDxjmLm3mTUDoRaStg',
+            '37ZtYckRA47d8FW7GkUxtbCLLMFKa68KZp5UAGZmgfFW',
+            '34ntrA2d9Nvc4zFrZVnmNXMkawNj4xvfxzGppUeZwQrU',
+            'HnfiAFsUedqRdpdccj9BeKDuZsevpaDQuAWrHP9MHiZU']
+
 
     minio_master_node_ip = get_free_ip(myres,minio_master_node_id,overlay_network_name)
 
@@ -407,9 +496,10 @@ def create_minio(nodeset):
         entrypoint='/bin/entrypoint',
         cpu=4,
         memory=4096,
+        public_ipv6=True,
         env={
-            "DATA":"3",
-            "PARITY":"2",
+            "DATA":"10",
+            "PARITY":"5",
             "ACCESS_KEY":"minioap3",
             },
         secret_env=secret_env,
@@ -434,7 +524,7 @@ def create_container(interact):
 
     HUB_URL = "https://hub.grid.tf/tf-bootable"
     wallet = j.clients.stellar.get(wallet_name)
-    expiration = int(j.data.time.HRDateToEpoch('2020/06/12'))
+    expiration = int(j.data.time.HRDateToEpoch('2020/06/30'))
 
     container_flist = f"{HUB_URL}/ubuntu:18.04-r1.flist"
 
@@ -443,7 +533,7 @@ def create_container(interact):
     storage_url = "zdb://hub.grid.tf:9900"
 
     # node on which the container should run
-    node_id="CpssVPA4oh455qDxakYhiazgG6t2FT6gAGvmPJMKJL2d"
+    node_id="FhfqdPSbEncHPWF74eDyDKjXTUfQjxwon9Hih9pG3Kjs"
 
     ip_address = get_free_ip(myres,node_id,overlay_network_name)
 
@@ -461,9 +551,9 @@ def create_container(interact):
     else:
         interactive = False
 
-    cpu = 1
-    memory = 1024
-    disk_size = 1*1024
+    cpu = 2
+    memory = 4092
+    disk_size = 200*1024
 
     var_dict = {"pub_key": PUBKEY}
     entry_point = "/bin/bash /start.sh"
@@ -514,7 +604,7 @@ def create_container(interact):
 
 def create_k8s():
     wallet = j.clients.stellar.get(wallet_name)
-    expiration = int(j.data.time.HRDateToEpoch('2021/06/30'))
+    expiration = int(j.data.time.HRDateToEpoch('2020/12/30'))
 
     zos = j.sal.zosv2
 
@@ -524,17 +614,51 @@ def create_k8s():
 
     res_k8s = zos.reservation_create()
 
-    # ---
-    node_master = '8TZdSPEUC8gACaNacQDFRiskiUeDxjmLm3mTUDoRaStg'
-    node_workers=['37ZtYckRA47d8FW7GkUxtbCLLMFKa68KZp5UAGZmgfFW',
-        'FS2bpZSpnHgs35hz3NYVLYfFmLjKffsrrRYjW8ntkoNh',
-        'GzXndGfaG82B2J9nu85GGZ3XjufZDENvmVub1oaAc7RZ']
+    """
+
+    # GE-Vie1
+    node_master = 'DAENgzAf2WSQzYtBwDxQ8ZwYdhkzLhekHx5B2PYrMMn9'
+    node_workers=['BXAhrkiHwjcwytysewndjStdt4sf3vnz52jBegpzaAgT',
+        '8TZdSPEUC8gACaNacQDFRiskiUeDxjmLm3mTUDoRaStg',
+        '37ZtYckRA47d8FW7GkUxtbCLLMFKa68KZp5UAGZmgfFW',
+        '34ntrA2d9Nvc4zFrZVnmNXMkawNj4xvfxzGppUeZwQrU',
+        'HnfiAFsUedqRdpdccj9BeKDuZsevpaDQuAWrHP9MHiZU',
+        'D7jPRCSe3FeMNs3pdq96DcdLmmqjiaRfQS465aB82xGQ',
+        'FS2bpZSpnHgs35hz3NYVLYfFmLjKffsrrRYjW8ntkoNh']
 
     #vie 2
     node_master = '6mVGwQ41R9f7VJpNoJ6QLs4V15dsfMNXfEmQYhVEwCz6'
     node_workers=['GiSqnwbuvQagEiqMoexkq582asC8MattsjbFFuMdsaCz',
         '9LmpYPBhnrL9VrboNmycJoGfGDjuaMNGsGQKeqrUMSii',
         '3FPB4fPoxw8WMHsqdLHamfXAdUrcRwdZY7hxsFQt3odL']
+
+    #fra 1
+    node_master ='TCoGYjsRDBMUro1QE9fUtxRpazLy91SfMzUBAHgMdrE'
+    node_workers=['GLRYdfgQA5kSc9v1QQ6cZ8PUSXBquj4Dj5oM89XaPJGv',
+        'C9BuLzGdpEmGuG1eiSVvPTEQ2GnpTn4NMR7NXR1aQx7Z',
+        '25hz9SDrYJmZgApi45Eq8jCKTNpLeKjtoidW6PnZvbCq']
+
+    #fra 1
+    node_master ='2gKiAZgeA8C1HsvSYMfdnZYPWNm51xMdYRBNnZxAthWr'
+    node_workers=['GLRYdfgQA5kSc9v1QQ6cZ8PUSXBquj4Dj5oM89XaPJGv',
+        'C9BuLzGdpEmGuG1eiSVvPTEQ2GnpTn4NMR7NXR1aQx7Z',
+        '25hz9SDrYJmZgApi45Eq8jCKTNpLeKjtoidW6PnZvbCq',
+        'GqGXxWW5ZKw9XANWACKR7zqnMXr5utunSL1Gb1o9sLr9',
+        '8i6RRZcUjiSycxhcJ9AS7pgEGC559yR7TbP5GGUDAZvG',
+        'gtsuBZ81yciMa9kb17oBBebWxdXyBhRuMvUpKHKXBcK']
+
+    """
+
+    #sbg1
+    node_master ='FCxp4JG2kr76dCnc2FzniApdwBak52uaSfbuigknS5Jx'
+    node_workers=['FhfqdPSbEncHPWF74eDyDKjXTUfQjxwon9Hih9pG3Kjs',
+        '7fHSAHEvUGtUcYSqLtpGq8ANssPikTyyHC52FddDYF4Y',
+        'FjwyHVvfATkVb4Puh4x6jCMS79TVVgSYagAuZTxWrsbj',
+        '9211BFV7MFwktD2b8jHE9Ub3fHRtaYQyBBfwT9kEKA7q',
+        'FUq4Sz7CdafZYV2qJmTe3Rs4U4fxtJFcnV6mPNgGbmRg',
+        '5Pb5NMBQWLTWhXK2cCM8nS6JZrnP2HaTP452TfMMYT9p']
+
+
 
     ip_master = get_free_ip(myres,node_master,overlay_network_name)
     ip_worker = []
@@ -550,6 +674,7 @@ def create_k8s():
         size=size,            # 1 (1 logical core, 2GB of memory) or 2 (2 logical cores and 4GB of memory)
         ssh_keys=PUBKEY)
 
+    print ("m:",master)
     worker = []
     for i, node in enumerate(node_workers):
         print ("worker:",i,node,)
@@ -609,13 +734,15 @@ tid = me.tid   # ?  id vs. tid !!!!
 #overlay_network_name="Net-20"
 #overlay_network_pre="172.20." # only needed for network creation
 
-overlay_network_name="ht-test_6"
+#overlay_network_name="ht-test_6"
 
-overlay_network_name="zabbix1"
-overlay_network_pre="10.100."  # / 16
+overlay_network_name="net-sbg1"
+overlay_network_pre="10.11."  # / 16
+
+#add_network_access()
 
 
-# you only need to create the network once
+## you only need to create the network once
 #create_network()
 #sys.exit()
 
@@ -627,8 +754,8 @@ print ("--> end   get res:",time.strftime("%Y.%m.%d-%H:%M:%S"))
 #create_minio("vie2")
 #create_minio("vie2sbg1")
 #create_minio("sbg1_no_apllo")
-overlay_network_name="ht-test_6"
-create_minio("sbg1")
-#create_container("no")
+#overlay_network_name="test4-fra"
+#create_minio("sbg1")
+create_container("no")
 #create_k8s()
 print ("--> finished:",time.strftime("%Y.%m.%d-%H:%M:%S"))
