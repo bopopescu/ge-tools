@@ -137,7 +137,7 @@ def example3():
             pts_res = time.strftime('%Y-%m-%d',time.localtime(ts_res))
             pts_now = time.strftime('%Y-%m-%d',time.localtime(ts_now))
 
-            if ts_now > ts_res: continue
+            #if ts_now > ts_res: continue
 
             res_text =""
             if (r["data_reservation"]["networks"] != [] ):
@@ -358,8 +358,8 @@ def example10(farmid):
 
 # ---------------------------------------------
 
-telegram_3sdk_group = {"token":"804820058:AAEnxln3mjOWGA76131ucloIKswlSdHMLro","chat_id":-467483520}
-telegram_herby = {"token":"804820058:AAEnxln3mjOWGA76131ucloIKswlSdHMLro","chat_id":249140376}
+telegram_3sdk_group = {"token": '<hidden>' ,"chat_id":-467483520}
+telegram_herby = {"token":'<hidden>',"chat_id":249140376}
 
 # print sumary for all or only GEC nodes
 
@@ -378,9 +378,10 @@ users = tf.get_from_tf(users_url)
 #example1()
 #example2(True)
 
-#example3()
+
+example3()
 #example8("k",users)
-#sys.exit()
+sys.exit()
 
 #example4(9156)
 #example5("MFxftFaF78sVlBwgZi+NfYKZtSi9dnurzwIOhKoyy2k=",res)

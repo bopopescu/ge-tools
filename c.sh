@@ -8,7 +8,7 @@
 # python -m http.server 8000
 
 
-for f in c.sh auto_depl.py
+for f in c.sh auto_depl.py auto_depl_new.py
   do
     echo ${f}
     curl http://192.168.0.90/code/ge-tools/${f} >${f}

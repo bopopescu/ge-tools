@@ -106,7 +106,7 @@ def get_from_tf(url):
         for a in r:
             tf.append(a)
         p += 1
-    #print("pages:",p)
+    #print(url," ---: ",p)
     return (tf)
 
 def send_telegram(telegram,text):

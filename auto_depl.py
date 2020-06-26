@@ -12,7 +12,7 @@ import ipaddress
 
 
 def get_my_reservations(tid):
-    reservations = j.sal.zosv2.reservation_list(tid=130,next_action="DEPLOY")
+    reservations = j.sal.zosv2.reservation_list(tid=tid,next_action="DEPLOY")
     #do some checks
     return reservations
 
@@ -128,6 +128,7 @@ def check_network_res(resid):
     check if networkres is Ok
     via results_k8s
     '''
+    #todo loop
 
     res=j.clients.explorer.explorer.reservations.get(resid)
     results = j.sal.zosv2.reservation_result(res.id)
@@ -196,11 +197,11 @@ def create_network():
     network = zos.network.create(r, ip_range=overlay_network_ip_range, network_name=overlay_network_name)
 
 
-#    nodes_all = nodes_GE_StGallen1  + nodes_GE_Frankfurt1 + nodes_GE_Toronto1 +nodes_GE_Rochester1
+    nodes_all = nodes_GE_StGallen1 #  + nodes_GE_Frankfurt1 + nodes_GE_Toronto1 +nodes_GE_Rochester1
 #   nodes_all = nodes_GE_Salzburg1  + nodes_GE_Vienna2
 
 #   nodes_all = nodes_GE_Vienna1
-    nodes_all = nodes_GEA_Salzburg1 #nodes_GE_Frankfurt1
+#   nodes_all = nodes_GEA_Salzburg1 #nodes_GE_Frankfurt1
 
     nodes_all.append(gwnode)
 
@@ -222,12 +223,12 @@ def create_network():
 
     # This adds all the nodes that are up and accepts 'FreeTFT' as a currency.
     #nipl = dict()  # node ip list :-)
-    ii = 0
+#    ii = 0
     for i, node in enumerate(nodes_all):
         if (zos.nodes_finder.filter_is_up(node) and zos.nodes_finder.filter_is_free_to_use(node) and check_public_ipv6(node)):   # check for if you can pay with this token
-            ii += 1
+#            ii += 1
             iprange = overlay_network_pre+f"{i+10}.0/24"
-            ippre = overlay_network_pre+f"{i+10}."
+    #        ippre = overlay_network_pre+f"{i+10}."
             zos.network.add_node(network, node.node_id , iprange)
             #nipl[node.node_id]=ippre
             print("Node: ", i,node.farm_id, node.node_id,  " (",node.total_resources.cru, ") :", iprange)
@@ -296,15 +297,15 @@ def create_minio(nodeset):
     #todo: randomize it!!
 
     # customize this !!!
-    zdb_size = 1000 # in GB !
-    expiration = int(j.data.time.HRDateToEpoch('2020/06/25'))
+    zdb_size = 2048 # in GB !
+    expiration = int(j.data.time.HRDateToEpoch('2020/06/30'))
     #expiration = int(j.data.time.HRDateToEpoch('2021/01/31'))
 
 
     wallet = j.clients.stellar.get(wallet_name)
 
-    flist_url = "https://hub.grid.tf/tf-official-apps/minio-2020-01-25T02-50-51Z.flist"
-    #flist_url = "https://hub.grid.tf/tf-official-apps/minio:latest.flist"
+    #flist_url = "https://hub.grid.tf/tf-official-apps/minio-2020-01-25T02-50-51Z.flist"
+    flist_url = "https://hub.grid.tf/tf-official-apps/minio:latest.flist"
 
     zos = j.sal.zosv2
     reservation_zdbs = zos.reservation_create()
@@ -493,7 +494,7 @@ def create_minio(nodeset):
         ip_address=minio_master_node_ip,
         flist=flist_url,
         interactive=False,
-        entrypoint='/bin/entrypoint',
+        entrypoint= '',     #'/bin/entrypoint',
         cpu=4,
         memory=4096,
         public_ipv6=True,
@@ -501,6 +502,7 @@ def create_minio(nodeset):
             "DATA":"10",
             "PARITY":"5",
             "ACCESS_KEY":"minioap3",
+            "SSH_KEY": PUBKEY
             },
         secret_env=secret_env,
     )
@@ -533,7 +535,7 @@ def create_container(interact):
     storage_url = "zdb://hub.grid.tf:9900"
 
     # node on which the container should run
-    node_id="FhfqdPSbEncHPWF74eDyDKjXTUfQjxwon9Hih9pG3Kjs"
+    node_id="BjiztEd9N4utH3M559653VxLvVncBhRCac2t3w7Y9fSE"
 
     ip_address = get_free_ip(myres,node_id,overlay_network_name)
 
@@ -720,7 +722,7 @@ GUIDO = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAAC
 
 PUBKEY = HERBERT
 
-j.core.myenv.secret_set(secret="keines")
+#j.core.myenv.secret_set(secret="keines")
 wallet_name='ht20'
 currency='FreeTFT'
 
@@ -736,15 +738,15 @@ tid = me.tid   # ?  id vs. tid !!!!
 
 #overlay_network_name="ht-test_6"
 
-overlay_network_name="net-sbg1"
-overlay_network_pre="10.11."  # / 16
+overlay_network_name="net-stg1"
+overlay_network_pre="10.19."  # / 16
 
 #add_network_access()
 
 
 ## you only need to create the network once
-#create_network()
-#sys.exit()
+# create_network()
+# sys.exit()
 
 print ("--> start get res:",time.strftime("%Y.%m.%d-%H:%M:%S"))
 myres = get_my_reservations(tid)
