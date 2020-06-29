@@ -12,7 +12,7 @@ import ipaddress
 
 
 def get_my_reservations(tid):
-    reservations = j.sal.zosv2.reservation_list(tid=tid,next_action="DEPLOY")
+    reservations = j.sal.zosv2.reservation_list(tid=130,next_action="DEPLOY")
     #do some checks
     return reservations
 
@@ -197,11 +197,11 @@ def create_network():
     network = zos.network.create(r, ip_range=overlay_network_ip_range, network_name=overlay_network_name)
 
 
-    nodes_all = nodes_GE_StGallen1 #  + nodes_GE_Frankfurt1 + nodes_GE_Toronto1 +nodes_GE_Rochester1
+#    nodes_all = nodes_GE_StGallen1  + nodes_GE_Frankfurt1 + nodes_GE_Toronto1 +nodes_GE_Rochester1
 #   nodes_all = nodes_GE_Salzburg1  + nodes_GE_Vienna2
 
 #   nodes_all = nodes_GE_Vienna1
-#   nodes_all = nodes_GEA_Salzburg1 #nodes_GE_Frankfurt1
+    nodes_all = nodes_GEA_Salzburg1 #nodes_GE_Frankfurt1
 
     nodes_all.append(gwnode)
 
@@ -290,26 +290,27 @@ def create_network():
 
 
 
-def create_minio(nodeset):
+def create_minio(nodeset,m_s="m"):
 
 
-    password = "xxsupersecret"  # zdb secret_set
-    #todo: randomize it!!
 
     # customize this !!!
-    zdb_size = 2048 # in GB !
+    zdb_size = 20 # 48 # in GB !
     expiration = int(j.data.time.HRDateToEpoch('2020/06/30'))
     #expiration = int(j.data.time.HRDateToEpoch('2021/01/31'))
 
+    ACCESS_KEY = "minio_ms"
+    SECRET_KEY = "m987654321"
+    CPU = 2
+    MEM = 4096
+    DATA = 3
+    PARITY = 2
 
     wallet = j.clients.stellar.get(wallet_name)
 
     #flist_url = "https://hub.grid.tf/tf-official-apps/minio-2020-01-25T02-50-51Z.flist"
     flist_url = "https://hub.grid.tf/tf-official-apps/minio:latest.flist"
 
-    zos = j.sal.zosv2
-    reservation_zdbs = zos.reservation_create()
-    reservation_storage = zos.reservation_create()
 
     #todo: select the best CPU node
 
@@ -353,6 +354,7 @@ def create_minio(nodeset):
         6chi1iSczxfF4U2iyCcJwkwWnwzcDgQHzCRExK9r4V1j
         """
         minio_master_node_id = 'BSusuRh6qFzheQFwNPe1S5FA5pdSZVJwVLhpNS6GN4XD'
+        minio_slave_node_id = 'FCxp4JG2kr76dCnc2FzniApdwBak52uaSfbuigknS5Jx'
         # sbg1 apollo ########################################
         zdb_node_id=['HugtVL51BFNLbZbbxnWu2GEe8hV97YVPac19zy5wwNpT',
             '9KAbX21NGbZYupBJ6EeeWx3ZTKDx7ADevr8qtmEa5WkC',
@@ -382,6 +384,7 @@ def create_minio(nodeset):
         """
 
         minio_master_node_id ='8h8bzadEZjn18eP1T6Pep5dcMuZqx6ArH5eqAJofjfYk'
+        minio_slave_node_id = 'D5tphUSss9TJXe8ohzxXzP78t5nyX92fhYLBUPyZXJD1'
         # stg1 apollo ########################################
         zdb_node_id=['BjiztEd9N4utH3M559653VxLvVncBhRCac2t3w7Y9fSE',
             '51EKwgRL6n3pLXBcTUsbzvq5VaAV2DA2LrVzFxrEKqH9',
@@ -389,15 +392,6 @@ def create_minio(nodeset):
             '89mNigU1u94nATtvho3Ut7n9HT7zx6nuVqeXUFnmQwrA',
             'GdhTt47LD7Xn2RiVcGWW4fQ67YyiZEcgPgzeJcowge6s']
 
-
-    if nodeset == "sbg1_no_apllo":
-        # only on salzbug1 cpu nodes
-        minio_master_node_id = 'BSusuRh6qFzheQFwNPe1S5FA5pdSZVJwVLhpNS6GN4XD'
-        zdb_node_id=['HugtVL51BFNLbZbbxnWu2GEe8hV97YVPac19zy5wwNpT',
-            'FCxp4JG2kr76dCnc2FzniApdwBak52uaSfbuigknS5Jx',
-            'FhfqdPSbEncHPWF74eDyDKjXTUfQjxwon9Hih9pG3Kjs',
-            '7fHSAHEvUGtUcYSqLtpGq8ANssPikTyyHC52FddDYF4Y',
-            'FjwyHVvfATkVb4Puh4x6jCMS79TVVgSYagAuZTxWrsbj']
 
 
     if nodeset == "vie2sbg1":
@@ -419,25 +413,22 @@ def create_minio(nodeset):
             'HnfiAFsUedqRdpdccj9BeKDuZsevpaDQuAWrHP9MHiZU']
 
 
-    minio_master_node_ip = get_free_ip(myres,minio_master_node_id,overlay_network_name)
+    zos = j.sal.zosv2
+#    reservation_zdbs = zos.reservation_create()
+#    reservation_storage = zos.reservation_create()
 
-    print("minio_master_node_ip:",minio_master_node_ip)
+#    password = "xxsupersecret"  # zdb secret_set
 
-    # Create volume for metadata storage
-    volume = zos.volume.create(reservation_storage,minio_master_node_id,size=100,type='SSD')
+    password = j.data.idgenerator.generateGUID()   # randomize it!!
 
-    registered_reservation_volume = zos.reservation_register(reservation_storage, expiration, currencies=currency)
+    reservation = zos.reservation_create()
 
-    # inspect the result of the reservation provisioning
-    results_volume = zos.reservation_result(registered_reservation_volume.reservation_id)
-
-    # make payment for the volume
-    payment_id_volume=zos.billing.payout_farmers(wallet, registered_reservation_volume)
-
+    reservation_zdbs = zos.reservation_create()
+    reservation_storage = zos.reservation_create()
 
     for i, node_id in enumerate(zdb_node_id):
         zos.zdb.create(
-            reservation=reservation_zdbs,
+            reservation=reservation,
                 node_id=node_id,
                 size=zdb_size,
                 mode='seq',
@@ -446,63 +437,101 @@ def create_minio(nodeset):
                 public=False)
 
 
-    # register the reservation
-    registered_reservation_zdbs = zos.reservation_register(reservation_zdbs, expiration, currencies=currency)
+    minio_master_node_ip = get_free_ip(myres,minio_master_node_id,overlay_network_name)
+    print("minio_master_node_ip:",minio_master_node_ip)
+    # Create volume for metadata storage
+    volume = zos.volume.create(reservation,minio_master_node_id,size=100,type='SSD')
+#    volume = zos.volume.create(reservation_storage,minio_master_node_id,size=100,type='SSD')
 
-    # make payment for the zbds
-    payment_id_zdb=zos.billing.payout_farmers(wallet, registered_reservation_zdbs)
+    if m_s == "m/s":
+        minio_slave_node_ip = get_free_ip(myres,minio_slave_node_id,overlay_network_name)
+        print("minio_slave_node_ip:",minio_slave_node_ip)
+        slave_volume = zos.volume.create(reservation,minio_slave_node_id,size=100,type='SSD')
 
-    total_workloads = len(reservation_zdbs.data_reservation.zdbs) + len(reservation_zdbs.data_reservation.volumes)
-    results_zdbs = zos.reservation_result(registered_reservation_zdbs.reservation_id)
+    registered_reservation = zos.reservation_register(reservation, expiration, currencies=currency)
+
+    # inspect the result of the reservation provisioning
+    zdb_rid = registered_reservation.reservation_id
+    results = zos.reservation_result(zdb_rid)
+    # make payment for the volume
+    payment_id = zos.billing.payout_farmers(wallet, registered_reservation)
+
+    print ('payment_id:',payment_id)
+#
+#    # register the reservation
+#    registered_reservation_zdbs = zos.reservation_register(reservation_zdbs, expiration, currencies=currency)
+#
+#    # make payment for the zbds
+#    payment_id_zdb=zos.billing.payout_farmers(wallet, registered_reservation_zdbs)
+
+    total_workloads = len(reservation.data_reservation.zdbs) + len(reservation.data_reservation.volumes)
+    results = zos.reservation_result(zdb_rid)
     s=0
-    while len(results_zdbs) < total_workloads:
-        time.sleep(5)  # wait for worklaods to be deployed
-        s += 5
-        results_zdbs = zos.reservation_result(registered_reservation_zdbs.reservation_id)
-        print ("\r","wait to finish zdbs... ",s, end = '')
+    print ("total:",total_workloads)
+    try:
+        while len(results) < total_workloads:
+            time.sleep(5)  # wait for worklaods to be deployed
+            s += 5
+            results = zos.reservation_result(zdb_rid)
+            print ("\r",len(results)," wait to finish zdbs... ",s, end = '')
+    except KeyboardInterrupt:
+        pass
     print("... zdbs created")
     # ----------------------------------------------------------------------------------
     # Read the IP address of the 0-db namespaces after they are deployed
     # we will need these IPs when creating the minio container
     # ----------------------------------------------------------------------------------
+
     namespace_config = []
-    for result in results_zdbs:
-        data = result.data_json
-        cfg = f"{data['Namespace']}:{password}@[{data['IP']}]:{data['Port']}"
-        namespace_config.append(cfg)
+
+    for result in results:
+        if result.category == "ZDB":
+            data = result.data_json
+
+            if "IPs" in data:
+                ip = data["IPs"][0]
+            elif "IP" in data:
+                ip = data["IP"]
+            else:
+                raise j.exceptions.RuntimeError("missing IP field in the 0-DB result")
+
+            cfg = f"{data['Namespace']}:{password}@[{ip}]:{data['Port']}"
+            namespace_config.append(cfg)
+
 
     # All IP's for the zdb's are now known and stored in the namespace_config structure.
     print(namespace_config)
+    if m_s == "m/s":
+        tlog_access = namespace_config.pop(-1)
+#    reservation_minio = zos.reservation_create()
 
-    # ----------------------------------------------------------------------------------
-    # With the low level disk managers done and the IP addresses discovered we can now build
-    # the reservation for the min.io S3 interface.
-    # ----------------------------------------------------------------------------------
-    # overlay_network_name="Artheon-Production"
-    reservation_master_minio = zos.reservation_create()
-
-    minio_secret_encrypted = j.sal.zosv2.container.encrypt_secret(minio_master_node_id, "m987654321")
+    minio_secret_encrypted = j.sal.zosv2.container.encrypt_secret(minio_master_node_id, SECRET_KEY)
 
     shards_encrypted = j.sal.zosv2.container.encrypt_secret(minio_master_node_id, ",".join(namespace_config))
     secret_env = {"SHARDS": shards_encrypted, "SECRET_KEY": minio_secret_encrypted}
 
+    if m_s == "m/s":
+        tlog_access_encrypted = j.sal.zosv2.container.encrypt_secret(minio_master_node_id, tlog_access)
+        secret_env["TLOG"] = tlog_access_encrypted
+
 
     minio_master_container=zos.container.create(
-        reservation=reservation_master_minio,
+        reservation=reservation,
         node_id=minio_master_node_id,
         network_name=overlay_network_name,
         ip_address=minio_master_node_ip,
         flist=flist_url,
         interactive=False,
-        entrypoint= '',     #'/bin/entrypoint',
+        entrypoint= '',
         cpu=4,
         memory=4096,
         public_ipv6=True,
         env={
-            "DATA":"10",
-            "PARITY":"5",
-            "ACCESS_KEY":"minioap3",
-            "SSH_KEY": PUBKEY
+            "DATA":DATA,
+            "PARITY":PARITY,
+            "ACCESS_KEY":ACCESS_KEY,
+            "SSH_KEY": PUBKEY,
+            "MINIO_PROMETHEUS_AUTH_TYPE": "public"
             },
         secret_env=secret_env,
     )
@@ -512,14 +541,62 @@ def create_minio(nodeset):
     # ----------------------------------------------------------------------------------
     zos.volume.attach_existing(
         container=minio_master_container,
-        volume_id=f'{registered_reservation_volume.reservation_id}-{volume.workload_id}',
-        mount_point='/data')
-    registered_reservation_minio_master = zos.reservation_register(reservation_master_minio, expiration, currencies=currency)
-    results_master_minio = zos.reservation_result(registered_reservation_minio_master.reservation_id)
+        volume_id=f"{zdb_rid}-{volume.workload_id}",
+        mount_point="'/data")
+
+    if m_s == "m/s": # slave
+
+        slave_secret_encrypted = j.sal.zosv2.container.encrypt_secret(minio_slave_node_id, SECRET_KEY)
+        slave_shards_encrypted = j.sal.zosv2.container.encrypt_secret(minio_slave_node_id, ",".join(namespace_config))
+        slave_secret_env = {"SHARDS": slave_shards_encrypted, "SECRET_KEY": slave_secret_encrypted}
+
+        tlog_access_encrypted = j.sal.zosv2.container.encrypt_secret(minio_slave_node_id, tlog_access)
+        secret_env = {
+            "SHARDS": slave_shards_encrypted,
+            "SECRET_KEY": slave_secret_encrypted,
+            "MASTER": tlog_access_encrypted,
+                }
+
+        slave_cont = j.sal.zosv2.container.create(
+            reservation=reservation,
+            node_id=minio_slave_node_id,
+            network_name=overlay_network_name,
+            ip_address=minio_slave_node_ip,
+            flist=flist_url,
+            entrypoint="",
+            cpu=CPU,
+            memory=MEM,
+            env={
+                "DATA":DATA,
+                "PARITY":PARITY,
+                "ACCESS_KEY":ACCESS_KEY,
+                "SSH_KEY": PUBKEY,
+                "MINIO_PROMETHEUS_AUTH_TYPE": "public"
+            },
+            secret_env=secret_env,
+            )
+
+        zos.volume.attach_existing(
+            container=slave_cont,
+            volume_id=f"{zdb_rid}-{slave_volume.workload_id}",
+            mount_point='/data')
+
+
+#    print ('1. reservation_minio._ddict:',reservation._ddcit)
+
+    res = j.sal.reservation_chatflow.solution_model_get("minioherby1", "tfgrid.solutions.minio.1" )
+
+    print ('res:',res)
+    reservation = j.sal.reservation_chatflow.reservation_metadata_add(reservation, res)
+
+#    print ('2. reservation_minio._ddict:',reservation._ddcit)
+
+    registered_reservation_minio = zos.reservation_register(reservation, expiration, currencies=currency)
+    results_minio = zos.reservation_result(registered_reservation.reservation_id)
 
     # make payment for the minio_master
-    payment_id_master_minio=zos.billing.payout_farmers(wallet, registered_reservation_minio_master)
-    print ("Minio ID:",registered_reservation_minio_master.reservation_id)
+    payment_id_minio=zos.billing.payout_farmers(wallet, registered_reservation_minio)
+    print ("Minio ID:",registered_reservation_minio.reservation_id)
 
 
 def create_container(interact):
@@ -535,7 +612,7 @@ def create_container(interact):
     storage_url = "zdb://hub.grid.tf:9900"
 
     # node on which the container should run
-    node_id="BjiztEd9N4utH3M559653VxLvVncBhRCac2t3w7Y9fSE"
+    node_id="FhfqdPSbEncHPWF74eDyDKjXTUfQjxwon9Hih9pG3Kjs"
 
     ip_address = get_free_ip(myres,node_id,overlay_network_name)
 
@@ -555,7 +632,7 @@ def create_container(interact):
 
     cpu = 2
     memory = 4092
-    disk_size = 2000*1024  # in MB !
+    disk_size = 200*1024  # in MB !
 
     var_dict = {"pub_key": PUBKEY}
     entry_point = "/bin/bash /start.sh"
@@ -699,8 +776,17 @@ def create_k8s():
 
     #todo: check and wait for ready
 
+def tcpproxy():
+    zos.gateway.tcp_proxy(reservation=r,
+                            node_id='CBDY1Fu4CuxGpdU3zLL9QT5DGaRkxjpuJmzV6V5CBWg4',
+                            domain='s3vie1ap3.edGE_cloud.eu',
+                            addr='2a04:7700:1003:1:e4e3:57ff:fec2:34f0',
+                            port=9000,
+                            port_tls=9001)
+
 
 #----------------------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -713,7 +799,7 @@ GUIDO = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAAC
 
 PUBKEY = HERBERT
 
-#j.core.myenv.secret_set(secret="keines")
+j.core.myenv.secret_set(secret="keines")
 wallet_name='ht20'
 currency='FreeTFT'
 
@@ -730,14 +816,14 @@ tid = me.tid   # ?  id vs. tid !!!!
 #overlay_network_name="ht-test_6"
 
 overlay_network_name="net-stg1"
-overlay_network_pre="10.19."  # / 16
+overlay_network_pre="10.11."  # / 16
 
 #add_network_access()
 
 
 ## you only need to create the network once
-# create_network()
-# sys.exit()
+#create_network()
+#sys.exit()
 
 print ("--> start get res:",time.strftime("%Y.%m.%d-%H:%M:%S"))
 myres = get_my_reservations(tid)
@@ -748,7 +834,7 @@ print ("--> end   get res:",time.strftime("%Y.%m.%d-%H:%M:%S"))
 #create_minio("vie2sbg1")
 #create_minio("sbg1_no_apllo")
 #overlay_network_name="test4-fra"
-#create_minio("sbg1")
-create_container("no")
+create_minio("stg1","m/s")
+#create_container("no")
 #create_k8s()
 print ("--> finished:",time.strftime("%Y.%m.%d-%H:%M:%S"))
