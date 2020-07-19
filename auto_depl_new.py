@@ -329,7 +329,7 @@ def create_minio(nodeset,m_s="m"):
         GiSqnwbuvQagEiqMoexkq582asC8MattsjbFFuMdsaCz
         6mVGwQ41R9f7VJpNoJ6QLs4V15dsfMNXfEmQYhVEwCz6
         """
-        minio_master_node_id = 'BvJzAiQTqTJoBZ1F5WzYoPpWUBoyRWp7agXSWnY7SBre'
+        minio_main_node_id = 'BvJzAiQTqTJoBZ1F5WzYoPpWUBoyRWp7agXSWnY7SBre'
         # vie2 apollo ########################################
         zdb_node_id=['CLbt5He2JibpLb4VQtBEeYz3r7j1YYopeNSGAtjZKPPQ',
             'CayXiccrTd1uudPtBi1y6YusEXFFTENX3TShPJ85FnLJ',
@@ -353,8 +353,8 @@ def create_minio(nodeset,m_s="m"):
         8zdqjFD7GLsSSfsTgFYcGusw91gQ3tdx7jbUhJep2a5X
         6chi1iSczxfF4U2iyCcJwkwWnwzcDgQHzCRExK9r4V1j
         """
-        minio_master_node_id = 'BSusuRh6qFzheQFwNPe1S5FA5pdSZVJwVLhpNS6GN4XD'
-        minio_slave_node_id = 'FCxp4JG2kr76dCnc2FzniApdwBak52uaSfbuigknS5Jx'
+        minio_main_node_id = 'BSusuRh6qFzheQFwNPe1S5FA5pdSZVJwVLhpNS6GN4XD'
+        minio_subordinate_node_id = 'FCxp4JG2kr76dCnc2FzniApdwBak52uaSfbuigknS5Jx'
         # sbg1 apollo ########################################
         zdb_node_id=['HugtVL51BFNLbZbbxnWu2GEe8hV97YVPac19zy5wwNpT',
             '9KAbX21NGbZYupBJ6EeeWx3ZTKDx7ADevr8qtmEa5WkC',
@@ -383,8 +383,8 @@ def create_minio(nodeset,m_s="m"):
         8h8bzadEZjn18eP1T6Pep5dcMuZqx6ArH5eqAJofjfYk
         """
 
-        minio_master_node_id ='8h8bzadEZjn18eP1T6Pep5dcMuZqx6ArH5eqAJofjfYk'
-        minio_slave_node_id = 'D5tphUSss9TJXe8ohzxXzP78t5nyX92fhYLBUPyZXJD1'
+        minio_main_node_id ='8h8bzadEZjn18eP1T6Pep5dcMuZqx6ArH5eqAJofjfYk'
+        minio_subordinate_node_id = 'D5tphUSss9TJXe8ohzxXzP78t5nyX92fhYLBUPyZXJD1'
         # stg1 apollo ########################################
         zdb_node_id=['BjiztEd9N4utH3M559653VxLvVncBhRCac2t3w7Y9fSE',
             '51EKwgRL6n3pLXBcTUsbzvq5VaAV2DA2LrVzFxrEKqH9',
@@ -396,7 +396,7 @@ def create_minio(nodeset,m_s="m"):
 
     if nodeset == "vie2sbg1":
         # mix vie2 + salzburg1 ########################################
-        minio_master_node_id = 'FhfqdPSbEncHPWF74eDyDKjXTUfQjxwon9Hih9pG3Kjs'   #sbg1
+        minio_main_node_id = 'FhfqdPSbEncHPWF74eDyDKjXTUfQjxwon9Hih9pG3Kjs'   #sbg1
         zdb_node_id=['HugtVL51BFNLbZbbxnWu2GEe8hV97YVPac19zy5wwNpT',    ##sbg1
             '9KAbX21NGbZYupBJ6EeeWx3ZTKDx7ADevr8qtmEa5WkC',     #sbg1
             'CLbt5He2JibpLb4VQtBEeYz3r7j1YYopeNSGAtjZKPPQ',     #vie2
@@ -405,7 +405,7 @@ def create_minio(nodeset,m_s="m"):
 
     if nodeset == "vie1":
         # vienna 1 ########################################
-        minio_master_node_id = 'DAENgzAf2WSQzYtBwDxQ8ZwYdhkzLhekHx5B2PYrMMn9'
+        minio_main_node_id = 'DAENgzAf2WSQzYtBwDxQ8ZwYdhkzLhekHx5B2PYrMMn9'
         zdb_node_id=['BXAhrkiHwjcwytysewndjStdt4sf3vnz52jBegpzaAgT',
             '8TZdSPEUC8gACaNacQDFRiskiUeDxjmLm3mTUDoRaStg',
             '37ZtYckRA47d8FW7GkUxtbCLLMFKa68KZp5UAGZmgfFW',
@@ -437,16 +437,16 @@ def create_minio(nodeset,m_s="m"):
                 public=False)
 
 
-    minio_master_node_ip = get_free_ip(myres,minio_master_node_id,overlay_network_name)
-    print("minio_master_node_ip:",minio_master_node_ip)
+    minio_main_node_ip = get_free_ip(myres,minio_main_node_id,overlay_network_name)
+    print("minio_main_node_ip:",minio_main_node_ip)
     # Create volume for metadata storage
-    volume = zos.volume.create(reservation,minio_master_node_id,size=100,type='SSD')
-#    volume = zos.volume.create(reservation_storage,minio_master_node_id,size=100,type='SSD')
+    volume = zos.volume.create(reservation,minio_main_node_id,size=100,type='SSD')
+#    volume = zos.volume.create(reservation_storage,minio_main_node_id,size=100,type='SSD')
 
     if m_s == "m/s":
-        minio_slave_node_ip = get_free_ip(myres,minio_slave_node_id,overlay_network_name)
-        print("minio_slave_node_ip:",minio_slave_node_ip)
-        slave_volume = zos.volume.create(reservation,minio_slave_node_id,size=100,type='SSD')
+        minio_subordinate_node_ip = get_free_ip(myres,minio_subordinate_node_id,overlay_network_name)
+        print("minio_subordinate_node_ip:",minio_subordinate_node_ip)
+        subordinate_volume = zos.volume.create(reservation,minio_subordinate_node_id,size=100,type='SSD')
 
     registered_reservation = zos.reservation_register(reservation, expiration, currencies=currency)
 
@@ -505,21 +505,21 @@ def create_minio(nodeset,m_s="m"):
         tlog_access = namespace_config.pop(-1)
 #    reservation_minio = zos.reservation_create()
 
-    minio_secret_encrypted = j.sal.zosv2.container.encrypt_secret(minio_master_node_id, SECRET_KEY)
+    minio_secret_encrypted = j.sal.zosv2.container.encrypt_secret(minio_main_node_id, SECRET_KEY)
 
-    shards_encrypted = j.sal.zosv2.container.encrypt_secret(minio_master_node_id, ",".join(namespace_config))
+    shards_encrypted = j.sal.zosv2.container.encrypt_secret(minio_main_node_id, ",".join(namespace_config))
     secret_env = {"SHARDS": shards_encrypted, "SECRET_KEY": minio_secret_encrypted}
 
     if m_s == "m/s":
-        tlog_access_encrypted = j.sal.zosv2.container.encrypt_secret(minio_master_node_id, tlog_access)
+        tlog_access_encrypted = j.sal.zosv2.container.encrypt_secret(minio_main_node_id, tlog_access)
         secret_env["TLOG"] = tlog_access_encrypted
 
 
-    minio_master_container=zos.container.create(
+    minio_main_container=zos.container.create(
         reservation=reservation,
-        node_id=minio_master_node_id,
+        node_id=minio_main_node_id,
         network_name=overlay_network_name,
-        ip_address=minio_master_node_ip,
+        ip_address=minio_main_node_ip,
         flist=flist_url,
         interactive=False,
         entrypoint= '',
@@ -540,28 +540,28 @@ def create_minio(nodeset,m_s="m"):
     # Attach persistent storage to container - for storing metadata
     # ----------------------------------------------------------------------------------
     zos.volume.attach_existing(
-        container=minio_master_container,
+        container=minio_main_container,
         volume_id=f"{zdb_rid}-{volume.workload_id}",
         mount_point="'/data")
 
-    if m_s == "m/s": # slave
+    if m_s == "m/s": # subordinate
 
-        slave_secret_encrypted = j.sal.zosv2.container.encrypt_secret(minio_slave_node_id, SECRET_KEY)
-        slave_shards_encrypted = j.sal.zosv2.container.encrypt_secret(minio_slave_node_id, ",".join(namespace_config))
-        slave_secret_env = {"SHARDS": slave_shards_encrypted, "SECRET_KEY": slave_secret_encrypted}
+        subordinate_secret_encrypted = j.sal.zosv2.container.encrypt_secret(minio_subordinate_node_id, SECRET_KEY)
+        subordinate_shards_encrypted = j.sal.zosv2.container.encrypt_secret(minio_subordinate_node_id, ",".join(namespace_config))
+        subordinate_secret_env = {"SHARDS": subordinate_shards_encrypted, "SECRET_KEY": subordinate_secret_encrypted}
 
-        tlog_access_encrypted = j.sal.zosv2.container.encrypt_secret(minio_slave_node_id, tlog_access)
+        tlog_access_encrypted = j.sal.zosv2.container.encrypt_secret(minio_subordinate_node_id, tlog_access)
         secret_env = {
-            "SHARDS": slave_shards_encrypted,
-            "SECRET_KEY": slave_secret_encrypted,
+            "SHARDS": subordinate_shards_encrypted,
+            "SECRET_KEY": subordinate_secret_encrypted,
             "MASTER": tlog_access_encrypted,
                 }
 
-        slave_cont = j.sal.zosv2.container.create(
+        subordinate_cont = j.sal.zosv2.container.create(
             reservation=reservation,
-            node_id=minio_slave_node_id,
+            node_id=minio_subordinate_node_id,
             network_name=overlay_network_name,
-            ip_address=minio_slave_node_ip,
+            ip_address=minio_subordinate_node_ip,
             flist=flist_url,
             entrypoint="",
             cpu=CPU,
@@ -577,8 +577,8 @@ def create_minio(nodeset,m_s="m"):
             )
 
         zos.volume.attach_existing(
-            container=slave_cont,
-            volume_id=f"{zdb_rid}-{slave_volume.workload_id}",
+            container=subordinate_cont,
+            volume_id=f"{zdb_rid}-{subordinate_volume.workload_id}",
             mount_point='/data')
 
 
@@ -594,7 +594,7 @@ def create_minio(nodeset,m_s="m"):
     registered_reservation_minio = zos.reservation_register(reservation, expiration, currencies=currency)
     results_minio = zos.reservation_result(registered_reservation.reservation_id)
 
-    # make payment for the minio_master
+    # make payment for the minio_main
     payment_id_minio=zos.billing.payout_farmers(wallet, registered_reservation_minio)
     print ("Minio ID:",registered_reservation_minio.reservation_id)
 
@@ -696,7 +696,7 @@ def create_k8s():
     """
 
     # GE-Vie1
-    node_master = 'DAENgzAf2WSQzYtBwDxQ8ZwYdhkzLhekHx5B2PYrMMn9'
+    node_main = 'DAENgzAf2WSQzYtBwDxQ8ZwYdhkzLhekHx5B2PYrMMn9'
     node_workers=['BXAhrkiHwjcwytysewndjStdt4sf3vnz52jBegpzaAgT',
         '8TZdSPEUC8gACaNacQDFRiskiUeDxjmLm3mTUDoRaStg',
         '37ZtYckRA47d8FW7GkUxtbCLLMFKa68KZp5UAGZmgfFW',
@@ -706,19 +706,19 @@ def create_k8s():
         'FS2bpZSpnHgs35hz3NYVLYfFmLjKffsrrRYjW8ntkoNh']
 
     #vie 2
-    node_master = '6mVGwQ41R9f7VJpNoJ6QLs4V15dsfMNXfEmQYhVEwCz6'
+    node_main = '6mVGwQ41R9f7VJpNoJ6QLs4V15dsfMNXfEmQYhVEwCz6'
     node_workers=['GiSqnwbuvQagEiqMoexkq582asC8MattsjbFFuMdsaCz',
         '9LmpYPBhnrL9VrboNmycJoGfGDjuaMNGsGQKeqrUMSii',
         '3FPB4fPoxw8WMHsqdLHamfXAdUrcRwdZY7hxsFQt3odL']
 
     #fra 1
-    node_master ='TCoGYjsRDBMUro1QE9fUtxRpazLy91SfMzUBAHgMdrE'
+    node_main ='TCoGYjsRDBMUro1QE9fUtxRpazLy91SfMzUBAHgMdrE'
     node_workers=['GLRYdfgQA5kSc9v1QQ6cZ8PUSXBquj4Dj5oM89XaPJGv',
         'C9BuLzGdpEmGuG1eiSVvPTEQ2GnpTn4NMR7NXR1aQx7Z',
         '25hz9SDrYJmZgApi45Eq8jCKTNpLeKjtoidW6PnZvbCq']
 
     #fra 1
-    node_master ='2gKiAZgeA8C1HsvSYMfdnZYPWNm51xMdYRBNnZxAthWr'
+    node_main ='2gKiAZgeA8C1HsvSYMfdnZYPWNm51xMdYRBNnZxAthWr'
     node_workers=['GLRYdfgQA5kSc9v1QQ6cZ8PUSXBquj4Dj5oM89XaPJGv',
         'C9BuLzGdpEmGuG1eiSVvPTEQ2GnpTn4NMR7NXR1aQx7Z',
         '25hz9SDrYJmZgApi45Eq8jCKTNpLeKjtoidW6PnZvbCq',
@@ -729,7 +729,7 @@ def create_k8s():
     """
 
     #sbg1
-    node_master ='FCxp4JG2kr76dCnc2FzniApdwBak52uaSfbuigknS5Jx'
+    node_main ='FCxp4JG2kr76dCnc2FzniApdwBak52uaSfbuigknS5Jx'
     node_workers=['FhfqdPSbEncHPWF74eDyDKjXTUfQjxwon9Hih9pG3Kjs',
         '7fHSAHEvUGtUcYSqLtpGq8ANssPikTyyHC52FddDYF4Y',
         'FjwyHVvfATkVb4Puh4x6jCMS79TVVgSYagAuZTxWrsbj',
@@ -739,21 +739,21 @@ def create_k8s():
 
 
 
-    ip_master = get_free_ip(myres,node_master,overlay_network_name)
+    ip_main = get_free_ip(myres,node_main,overlay_network_name)
     ip_worker = []
     for wnode in node_workers:
         ip_worker.append(get_free_ip(myres,wnode,overlay_network_name))
 
-    master = zos.kubernetes.add_master(
+    main = zos.kubernetes.add_main(
         reservation=res_k8s,           # reservation structure
-        node_id=node_master,          # node_id to make the capacity reservation on and deploy the flist
+        node_id=node_main,          # node_id to make the capacity reservation on and deploy the flist
         network_name=overlay_network_name,     # network_name deployed on the node (node can have multiple private networks)
         cluster_secret=cluster_secret,   # cluster pasword
-        ip_address=ip_master,       # IP address the network range defined by network_name on the node
+        ip_address=ip_main,       # IP address the network range defined by network_name on the node
         size=size,            # 1 (1 logical core, 2GB of memory) or 2 (2 logical cores and 4GB of memory)
         ssh_keys=PUBKEY)
 
-    print ("m:",master)
+    print ("m:",main)
     worker = []
     for i, node in enumerate(node_workers):
         print ("worker:",i,node,)
@@ -764,7 +764,7 @@ def create_k8s():
             cluster_secret=cluster_secret,
             ip_address=ip_worker[i],
             size=size,
-            master_ip=ip_master,
+            main_ip=ip_main,
             ssh_keys=PUBKEY))
 
     print ("w:",worker)
